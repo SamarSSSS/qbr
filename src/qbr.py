@@ -35,7 +35,9 @@ class Qbr:
 
     def run(self):
         """The main function that will run the Qbr program."""
-        state = webcam.run()
+        ans = webcam.run()
+        state = ans[0]
+        all_colors = ans[1]
 
         # If we receive a number then it's an error code.
         if isinstance(state, int) and state > 0:
@@ -55,6 +57,8 @@ class Qbr:
             for index, notation in enumerate(algorithm.split(' ')):
                 text = i18n.t('solveManual.{}'.format(notation))
                 print('{}. {}'.format(index + 1, text))
+        
+        print(all_colors)
 
     def print_E_and_exit(self, code):
         """Print an error message based on the code and exit the program."""
