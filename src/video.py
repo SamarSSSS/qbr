@@ -38,7 +38,7 @@ class Webcam:
         self.colors_to_calibrate = ['green', 'red', 'blue', 'orange', 'white', 'yellow']
         self.average_sticker_colors = {}
         self.result_state = {}
-
+        self.all_colors = []
         self.snapshot_state = [(255,255,255), (255,255,255), (255,255,255),
                                (255,255,255), (255,255,255), (255,255,255),
                                (255,255,255), (255,255,255), (255,255,255)]
@@ -202,9 +202,6 @@ class Webcam:
 
         sorted_contours = top_row + middle_row + bottom_row
         return sorted_contours
-
-    def scanned_successfully(self):
-        """Validate if the user scanned 9 colors for each side."""
         color_count = {}
         for side, preview in self.result_state.items():
             for bgr in preview:
@@ -446,7 +443,7 @@ class Webcam:
         combined = ''
         for side in ['white', 'red', 'green', 'yellow', 'orange', 'blue']:
             combined += ''.join(notation[side])
-        return combined
+        return [combined, self.all_colors]
 
     def state_already_solved(self):
         """Find out if the cube hasn't been solved already."""
@@ -526,6 +523,26 @@ class Webcam:
                 self.draw_2d_cube_state()
 
             cv2.imshow("Qbr - Rubik's cube solver", self.frame)
+            
+            if key == 82:
+                while True:
+                    _, frame = self.cam.read()
+                    self.frame = frame
+                    key = cv2.waitKey(10) & 0xff 
+
+                    grayFrame = cv2.cvtColor(self.frame, cv2.COLOR_BGR2GRAY)
+                    blurredFrame = cv2.blur(grayFrame, (3, 3))
+                    cannyFrame = cv2.Canny(blurredFrame, 30, 60, 3)
+                    kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (9, 9))
+                    dilatedFrame = cv2.dilate(cannyFrame, kernel)
+
+                    contours = self.find_contours(dilatedFrame)
+                    if len(contours) == 9:
+                        self.draw_contours(contours)
+                        self.update_preview_state(contours)
+                        self.all_colors.append(self.preview_state)
+                       
+
 
         self.cam.release()
         cv2.destroyAllWindows()
@@ -540,6 +557,8 @@ class Webcam:
             return E_ALREADY_SOLVED
 
         return self.get_result_notation()
+    
+    
 
 
 webcam = Webcam()
