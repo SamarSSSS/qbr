@@ -1,4 +1,11 @@
 cube = [[2,3,4],[1,2,3],[5,7,1]]#[0,0,0,0,0,0,0,0,0],[1,1,1,1,1,1,1,1,1],[2,2,2,2,2,2,2,2,2],[3,3,3,3,3,3,3,3,3],[4,4,4,4,4,4,4,4,4],[5,5,5,5,5,5,5,5,5],[6,6,6,6,6,6,6,6,6]]
+FACE_ADJACENCY = { 0: [4,3,5,2],  # Front | Top Right Bottom Left
+1: {'top': 4, 'bottom': 5, 'left': 3, 'right': 2},  # Back 
+2: {'top': 4, 'bottom': 5, 'left': 1, 'right': 0},  # Left 
+3: {'top': 4, 'bottom': 5, 'left': 0, 'right': 1},  # Right 
+4: {'top': 1, 'bottom': 0, 'left': 2, 'right': 3},  # Top 
+5: {'top': 0, 'bottom': 1, 'left': 2, 'right': 3},  # Bottom 
+}
 rotation_pairs = {}
 def rotation(prev_face,curr_face):
     diff = set() 
@@ -38,7 +45,34 @@ def face_find(prev_face):
         if cube[face][4] == center:
             return face
     return -1
+def get_orientation(prev_face,face):
+    top_of_face = prev_face[0:3]
+    face = cube[face]
+    if top_of_face == face[0:3]:
+        return 0
+    elif top_of_face == [face[2],face[3],face[8]]:
+        return 1
+    elif top_of_face == [face[0],face[5],face[6]]:
+        return 2
+    else:
+        return 3
+def orientation_shifter(shifts,positions):
+    for s in range(shifts):
+        current = positions[0]
+        previous = positions[-1]
+        for i in range(len(positions)):
+            current = positions[i]
+            positions[i] = previous 
+            previous = current
+    return positions
 
-test = [124,5421,56,423,23,1]
-print(test[2,3,5])
+print(orientation_shifter(2,[1,2,3,4]))
+
+            
+            
+                       
+        #move everything to the right 1 and then move the value of the end to the begining, shifts is the number of times we do the shifts, and positions is the list that we're shifting
+
+    
+
 #print(rotation([23,4325,324,2,5,7,3,263,5],[124,21,324,124,5,7,124,213,5]))
